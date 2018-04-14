@@ -29,22 +29,45 @@ find a cab given my lat long.
 
 Source: <http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml>.
 
-The scope of data is limited to Green taxi data for February 2016. There is also data dictionary available for the website.
+The scope of data is limited to Green taxi data for February 2016. There is also data dictionary available from the website, which explain the variable.
+
+This time, I would use **R** as the programing software for the analysis. The analysis would be based on a standard data science framework and the questions above; however, I would extend the scope of the analysis to identify any unique insight as well as provide detailed explaination of my code.
 
 ## Dependencies {.tabset}
 ### Required libraries
+
 ```{r }
-if (!require("pacman")) install.packages("pacman")
+# pacman package install required packages if not available 
+if (!require("pacman")) install.packages("pacman") 
 pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes)
 ```
 
 ### Required Dataset
 
 ```{r }
+# Initially use read.csv then write the file so that going forward I can use fread
 # data <- read.csv("green_tripdata_2016-02.csv", stringsAsFactors = F)
 # write_csv(data,"green_tripdata_2016-02v2.csv")
 data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""),
               showProgress = F)
 ```
 
+## First Glimpse {.tabset}
+### First 6 rows
+
+```{r }
+data %>% head()
+```
+
+### Structure
+
+```{r }
+data %>% str() # 1510722 obs. of  21 variables
+```
+
+### Summary
+
+```{r }
+data %>% summary() # Ehail_fee has only NA
+```
 
