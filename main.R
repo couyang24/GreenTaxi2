@@ -71,10 +71,15 @@ data %>% filter(pickup_weekend=='Weekday') %>% group_by(pickup_hour) %>% summari
   labs(title='Gale Interview Challenge',subtitle='by Owen Ouyang',caption="source: Green Taxi Data",
        y="Average Trip Distance", x="Time of Day (Pickup)")
 
+round_num <- 3
 
-Top3 <- data %>% group_by(lng=round(Pickup_longitude,3),lat=round(Pickup_latitude,3)) %>% count() %>% arrange(desc(n)) %>% head(3)
+Weekend_Top5 <- data %>% filter(pickup_weekend=='Weekend') %>% 
+  group_by(lng=round(Pickup_longitude,round_num),lat=round(Pickup_latitude,round_num)) %>% 
+  count() %>% arrange(desc(n)) %>% head(5)
 
-
+Weekday_Top5 <- data %>% filter(pickup_weekend=='Weekday') %>% 
+  group_by(lng=round(Pickup_longitude,round_num),lat=round(Pickup_latitude,round_num)) %>% 
+  count() %>% arrange(desc(n)) %>% head(5)
 
 
 
