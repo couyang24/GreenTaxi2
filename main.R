@@ -39,7 +39,7 @@ data <- data %>% mutate(lpep_pickup_datetime = ymd_hms(lpep_pickup_datetime),
                 dropoff_weekday=as.factor(weekdays(lpep_pickup_datetime)))
 
 
-
+data$Store_and_fwd_flag %>% table()
 
 data %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=mean(Trip_distance)) %>% 
   ggplot(aes(pickup_hour, avg_trip_distance)) + geom_col() +
@@ -51,8 +51,28 @@ data %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=mean(Trip_distanc
   labs(title='Gale Interview Challenge',subtitle='by Owen Ouyang',caption="source: Green Taxi Data",
        y="Average Trip Distance", x="Time of Day (Pickup)")
 
+data %>% filter(pickup_weekend=='Weekend') %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=mean(Trip_distance)) %>% 
+  ggplot(aes(pickup_hour, avg_trip_distance)) + geom_col() +
+  geom_label(aes(label=round(avg_trip_distance,1)), size=3.5, alpha=.7) +
+  # coord_flip() +
+  scale_x_continuous(breaks=seq(1,24,1)) +
+  theme_economist() +
+  theme(legend.position = 'none') +
+  labs(title='Gale Interview Challenge',subtitle='by Owen Ouyang',caption="source: Green Taxi Data",
+       y="Average Trip Distance", x="Time of Day (Pickup)")
 
-data$Store_and_fwd_flag %>% table()
+data %>% filter(pickup_weekend=='Weekday') %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=mean(Trip_distance)) %>% 
+  ggplot(aes(pickup_hour, avg_trip_distance)) + geom_col() +
+  geom_label(aes(label=round(avg_trip_distance,1)), size=3.5, alpha=.7) +
+  # coord_flip() +
+  scale_x_continuous(breaks=seq(1,24,1)) +
+  theme_economist() +
+  theme(legend.position = 'none') +
+  labs(title='Gale Interview Challenge',subtitle='by Owen Ouyang',caption="source: Green Taxi Data",
+       y="Average Trip Distance", x="Time of Day (Pickup)")
+
+
+Top3 <- data %>% group_by(lng=round(Pickup_longitude,3),lat=round(Pickup_latitude,3)) %>% count() %>% arrange(desc(n)) %>% head(3)
 
 
 

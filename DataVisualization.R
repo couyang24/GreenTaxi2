@@ -27,3 +27,19 @@ data %>%
   addCircleMarkers(~Pickup_longitude, ~Pickup_latitude, radius = 1,
                    color = "firebrick", fillOpacity = 0.001)%>%
   addMarkers(~Pickup_longitude, ~Pickup_latitude, icon = greentaxi)
+
+
+
+
+
+
+data %>%
+  filter(Pickup_latitude > 40.5,Pickup_longitude > -74.3,Pickup_latitude < 41,Pickup_longitude < -73.8) %>% 
+  tail(50) %>% 
+  leaflet() %>% 
+  
+  addProviderTiles(providers$CartoDB.Positron) %>%
+
+  addCircleMarkers(~Pickup_longitude, ~Pickup_latitude, radius = 1,
+                   color = "firebrick", fillOpacity = 0.001)%>%
+  addMarkers(~Pickup_longitude, ~Pickup_latitude, icon = greentaxi)
