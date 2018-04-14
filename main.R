@@ -10,7 +10,7 @@ data %>% head()
 data %>% str() # 1510722 obs. of  21 variables
 data %>% summary() # Ehail_fee has only NA
 
-
+dim(data)
 
 data %>% head(20) %>% datatable()
 
@@ -18,17 +18,14 @@ colSums(is.na(data))
 
 # Dive into a few accounts
 
-# vendorID only takes two value 1 and 2. 
-# Presumably 
+# vendorID only takes two value 1 and 2. Based on the Data Dictionary, 1 stands for Creative Mobile Technologies and 
+# 2 stands for VeriFone Inc. Observations of vendor 2 is 3 times more than vendor 1. Presumably vendor 2 is the larger company.
+
 data$VendorID %>% table() 
 
+data$Store_and_fwd_flag %>% table() 
 
-data %>%
-  ggplot(aes(Trip_distance)) +
-  geom_histogram(fill = "firebrick", bins = 150) +
-  scale_x_log10() +
-  scale_y_sqrt()
-
+# 
 
 data <- data %>% mutate(lpep_pickup_datetime = ymd_hms(lpep_pickup_datetime),
                 pickup_hour=hour(lpep_pickup_datetime)+1,
@@ -37,6 +34,13 @@ data <- data %>% mutate(lpep_pickup_datetime = ymd_hms(lpep_pickup_datetime),
                 Lpep_dropoff_datetime = ymd_hms( Lpep_dropoff_datetime),
                 dropoff_hour=hour(lpep_pickup_datetime)+1,
                 dropoff_weekday=as.factor(weekdays(lpep_pickup_datetime)))
+
+
+data %>%
+  ggplot(aes(Trip_distance)) +
+  geom_histogram(fill = "firebrick", bins = 150) +
+  scale_x_log10() +
+  scale_y_sqrt()
 
 
 data$Store_and_fwd_flag %>% table()

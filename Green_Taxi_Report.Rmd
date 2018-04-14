@@ -1,5 +1,5 @@
 ---
-title: "Gale Partner Interview Case Study"
+title: "Green Taxi Case Study"
 author: "Chengran Ouyang"
 date: "`r format(Sys.Date())`"
 output:
@@ -20,18 +20,25 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Step 1: Define the Problem
 **Requirment:**
+
 1. Download the data, load it into your favorite statistical programing software or database.
 Report the number of rows and columns that you've loaded.
+
 2. Visualize trip distance by time of day in any way you see fit, any observations?
+
 3. What are the most popular pickup locations on weekdays vs weekend?
+
 4. I want to know where I can most easily get a cab. Recommend a pick up spot where i can
 find a cab given my lat long.
 
-Source: <http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml>.
-
-The scope of data is limited to Green taxi data for February 2016. There is also data dictionary available from the website, which explain the variable.
-
 This time, I would use **R** as the programing software for the analysis. The analysis would be based on a standard data science framework and the questions above; however, I would extend the scope of the analysis to identify any unique insight as well as provide detailed explaination of my code.
+
+The Process of Coding is available via [my github account](https://github.com/couyang24?tab=repositories).
+
+# Step 2: Gather the Data
+The scope of data is limited to Green taxi data for February 2016. There is also data dictionary available from the website, which explain the variable. The Data is available via [NYC Trip Data](http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml).
+
+# Step 3: Preprocess the Data
 
 ## Dependencies {.tabset}
 ### Required libraries
@@ -60,7 +67,7 @@ data %>% head()
 ```
 
 ### Structure
-
+The second question can be answered by looking at the structure of the dataset. The dataset has `r nrow(data)` observations(rows) and `r ncol(data)` variables(columns).
 ```{r }
 data %>% str() # 1510722 obs. of  21 variables
 ```
@@ -68,6 +75,52 @@ data %>% str() # 1510722 obs. of  21 variables
 ### Summary
 
 ```{r }
-data %>% summary() # Ehail_fee has only NA
+data %>% summary()
 ```
 
+## Data Cleaning: Correcting, Completing, Creating, and Converting {.tabset}
+### Correcting
+From the 
+```{r }
+data <- data %>% mutate(lpep_pickup_datetime = ymd_hms(lpep_pickup_datetime),
+                pickup_hour=hour(lpep_pickup_datetime)+1,
+                pickup_weekday=as.factor(weekdays(lpep_pickup_datetime)),
+                pickup_weekend=if_else(pickup_weekday=='Saturday'|pickup_weekday=='Sunday','Weekend','Weekday'),
+                Lpep_dropoff_datetime = ymd_hms( Lpep_dropoff_datetime),
+                dropoff_hour=hour(lpep_pickup_datetime)+1,
+                dropoff_weekday=as.factor(weekdays(lpep_pickup_datetime)))
+```
+
+##visu
+```{r }
+round_num <- 3
+
+Weekend_Top5 <- data %>% filter(pickup_weekend=='Weekend') %>% 
+  group_by(lng=round(Pickup_longitude,round_num),lat=round(Pickup_latitude,round_num)) %>% 
+  count() %>% arrange(desc(n)) %>% head(5)
+
+Weekday_Top5 <- data %>% filter(pickup_weekend=='Weekday') %>% 
+  group_by(lng=round(Pickup_longitude,round_num),lat=round(Pickup_latitude,round_num)) %>% 
+  count() %>% arrange(desc(n)) %>% head(5)
+
+
+greentaxi <- makeIcon(
+  iconUrl = "https://i.imgur.com/6rw618Q.png",
+  iconWidth = 38, iconHeight = 35,
+  iconAnchorX = 19, iconAnchorY = 39
+)
+
+Weekday_Top5 %>%
+  leaflet() %>% 
+  addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+  addCircleMarkers(~lng, ~lat, radius = 1,
+                   color = "firebrick", fillOpacity = 0.001)%>%
+  addMarkers(~lng, ~lat, icon = greentaxi)
+
+Weekend_Top5 %>%
+  leaflet() %>% 
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addCircleMarkers(~lng, ~lat, radius = 1,
+                   color = "firebrick", fillOpacity = 0.001)%>%
+  addMarkers(~lng, ~lat, icon = greentaxi)
+```
