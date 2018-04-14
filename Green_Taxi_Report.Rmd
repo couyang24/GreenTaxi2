@@ -16,12 +16,10 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes)
 ```
 
 # Step 1: Define the Problem
-
+**Requirment:**
 1. Download the data, load it into your favorite statistical programing software or database.
 Report the number of rows and columns that you've loaded.
 2. Visualize trip distance by time of day in any way you see fit, any observations?
@@ -31,6 +29,8 @@ find a cab given my lat long.
 
 Source: <http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml>.
 
+The scope of data is limited to Green taxi data for February 2016. There is also data dictionary available for the website.
+
 ## Dependencies {.tabset}
 ### Required libraries
 ```{r }
@@ -38,10 +38,13 @@ if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes)
 ```
 
-### Required libraries
+### Required Dataset
 
 ```{r }
-data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""))
+# data <- read.csv("green_tripdata_2016-02.csv", stringsAsFactors = F)
+# write_csv(data,"green_tripdata_2016-02v2.csv")
+data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""),
+              showProgress = F)
 ```
 
 

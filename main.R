@@ -1,7 +1,7 @@
 # Setup packages and load data
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes)
-# data <- read.csv("green_tripdata_2016-02v2.csv", stringsAsFactors = F)
+# data <- read.csv("green_tripdata_2016-02.csv", stringsAsFactors = F)
 # write_csv(data,"green_tripdata_2016-02v2.csv")
 data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""))
 
