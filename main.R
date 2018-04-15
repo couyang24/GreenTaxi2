@@ -103,6 +103,7 @@ data %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=median(Trip_dista
   labs(title='Green Taxi Case Study',subtitle='by Owen Ouyang',caption="source: Green Taxi Data",
        y="Average Trip Distance", x="Time of Day (Pickup)")
 
+
 data %>% filter(pickup_weekend=='Weekend') %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=median(Trip_distance)) %>% 
   ggplot(aes(pickup_hour, avg_trip_distance)) + geom_col() +
   geom_label(aes(label=round(avg_trip_distance,1)), size=3.5, alpha=.7) +
@@ -133,7 +134,7 @@ Weekday_Top5 <- data %>% filter(pickup_weekend=='Weekday') %>%
   group_by(lng=round(Pickup_longitude,round_num),lat=round(Pickup_latitude,round_num)) %>% 
   count() %>% arrange(desc(n)) %>% head(5)
 
-
+rm(round_num)
 
 
 
