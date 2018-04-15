@@ -73,11 +73,23 @@ data <- data %>% mutate(lpep_pickup_datetime = ymd_hms(lpep_pickup_datetime),
                 dropoff_weekday=as.factor(weekdays(lpep_pickup_datetime)))
 
 
+
+data %>%
+  ggplot(aes(Trip_distance)) +
+  geom_histogram(fill = "firebrick", bins = 150) +
+  theme_economist() +
+  labs(title='Green Taxi Case Study',subtitle='Initial Historgram of Distance',caption="source: NYC Green Taxi Data",
+       x="Travel Distance")
+
+
+
 data %>%
   ggplot(aes(Trip_distance)) +
   geom_histogram(fill = "firebrick", bins = 150) +
   scale_x_log10() +
-  scale_y_sqrt()
+  theme_economist() +
+  labs(title='Green Taxi Case Study',subtitle='Processed Historgram of Distance',caption="source: NYC Green Taxi Data",
+       x="Travel Distance")
 
 
 
@@ -88,7 +100,7 @@ data %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=median(Trip_dista
   scale_x_continuous(breaks=seq(1,24,1)) +
   theme_economist() +
   theme(legend.position = 'none') +
-  labs(title='Gale Interview Challenge',subtitle='by Owen Ouyang',caption="source: Green Taxi Data",
+  labs(title='Green Taxi Case Study',subtitle='by Owen Ouyang',caption="source: Green Taxi Data",
        y="Average Trip Distance", x="Time of Day (Pickup)")
 
 data %>% filter(pickup_weekend=='Weekend') %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=median(Trip_distance)) %>% 
@@ -98,7 +110,7 @@ data %>% filter(pickup_weekend=='Weekend') %>% group_by(pickup_hour) %>% summari
   scale_x_continuous(breaks=seq(1,24,1)) +
   theme_economist() +
   theme(legend.position = 'none') +
-  labs(title='Gale Interview Challenge',subtitle='by Owen Ouyang',caption="source: Green Taxi Data",
+  labs(title='Green Taxi Case Study',subtitle='by Owen Ouyang',caption="source: Green Taxi Data",
        y="Average Trip Distance", x="Time of Day (Pickup)")
 
 data %>% filter(pickup_weekend=='Weekday') %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=median(Trip_distance)) %>% 
@@ -108,7 +120,7 @@ data %>% filter(pickup_weekend=='Weekday') %>% group_by(pickup_hour) %>% summari
   scale_x_continuous(breaks=seq(1,24,1)) +
   theme_economist() +
   theme(legend.position = 'none') +
-  labs(title='Gale Interview Challenge',subtitle='by Owen Ouyang',caption="source: Green Taxi Data",
+  labs(title='Green Taxi Case Study',subtitle='by Owen Ouyang',caption="source: Green Taxi Data",
        y="Average Trip Distance", x="Time of Day (Pickup)")
 
 round_num <- 3

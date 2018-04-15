@@ -159,27 +159,47 @@ data <- data %>% mutate(lpep_pickup_datetime = ymd_hms(lpep_pickup_datetime),
 
 # Step 4 Perform Exploratory Data Analysis (EDA)
 
+## The Distribution of Distance {.tabset}
 
-First of all, let's have a overview on the distance data.
+### Raw
+
+First of all, let's have a overview on the distance data. As the graph below, the data is skewed by the distance outliers. 
 
 
-``` {r}
+```{r}
 data %>%
   ggplot(aes(Trip_distance)) +
-  geom_histogram(fill = "firebrick", bins = 150)
+  geom_histogram(fill = "firebrick", bins = 150) +
+  theme_economist() +
+  labs(title='Green Taxi Case Study',subtitle='Initial Historgram of Distance',caption="source: NYC Green Taxi Data",
+       x="Travel Distance")
 ```
 
 
+### Processed
+
+
+After processing the data, I got an almost normal distribution with some more few distance trips.
+
+
+```{r}
+data %>%
+  ggplot(aes(Trip_distance)) +
+  geom_histogram(fill = "firebrick", bins = 150) +
+  scale_x_log10() +
+  theme_economist() +
+  labs(title='Green Taxi Case Study',subtitle='Processed Historgram of Distance',caption="source: NYC Green Taxi Data",
+       x="Travel Distance (log)")
+```
+
+
+## Visualize Trip Distance by Time of Day
 
 
 
 
 
-
-
-
-
-
+## Top 5 Pick Up Locations on Weekdays and Weekend
 
 
 ```{r }
