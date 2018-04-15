@@ -46,7 +46,7 @@ The scope of data is limited to Green taxi data for February 2016. There is also
 ```{r }
 # pacman package install required packages if not available 
 if (!require("pacman")) install.packages("pacman") 
-pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes)
+pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes, rebus)
 ```
 
 ### Required Dataset
@@ -60,10 +60,10 @@ data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table =
 ```
 
 ## First Glimpse {.tabset}
-### First 6 rows
+### First 20 rows
 
 ```{r }
-data %>% head()
+data %>% head(20) %>% datatable()
 ```
 
 ### Structure
@@ -119,7 +119,7 @@ Weekday_Top5 %>%
 
 Weekend_Top5 %>%
   leaflet() %>% 
-  addProviderTiles(providers$CartoDB.Positron) %>%
+  addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
   addCircleMarkers(~lng, ~lat, radius = 1,
                    color = "firebrick", fillOpacity = 0.001)%>%
   addMarkers(~lng, ~lat, icon = greentaxi)
