@@ -18,14 +18,14 @@ data %>% sample_n(size=10000) %>%
 Weekday_Top5
 Weekend_Top5
 
-Weekday_Top5[1,] %>%
+Weekday_Top5[5,] %>%
   leaflet() %>% 
   addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
   addCircleMarkers(~lng, ~lat, radius = 1,
                    color = "firebrick", fillOpacity = 0.001)%>%
   addMarkers(~lng, ~lat, icon = greentaxi)
 
-Weekend_Top5 %>%
+Weekend_Top5[5,] %>%
   leaflet() %>% 
   addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
   addCircleMarkers(~lng, ~lat, radius = 1,

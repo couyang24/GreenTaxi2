@@ -283,9 +283,23 @@ greentaxi <- makeIcon(
 
 ### Weekday Top 5 Pick up locations
 
+
 There are the top 5 pick up locations during weekdays.
 
-1. 
+
+1. 71st Ave and Queens Blvd. (13,987 pick ups in Feb 2016)
+
+
+2. E 125th St and Park Ave. (13,235 pick ups in Feb 2016)
+
+
+3. Broad Way and Roosevelt Ave. (12,566 pick ups in Feb 2016)
+
+
+4. Madison Ave and E 101st St. (7,198 pick ups in Feb 2016)
+
+
+5. Bedford Ave and N 7th St. (6,105 pick ups in Feb 2016)
 
 
 ```{r}
@@ -301,7 +315,19 @@ Weekday_Top5 %>%
 ### Weekend Top 5 Pick locations
 
 
+1. Broad Way and Roosevelt Ave. (6,465 pick ups in Feb 2016)
 
+
+2. 71st Ave and Queens Blvd. (5,249 pick ups in Feb 2016)
+
+
+3. E 125th St and Park Ave. (4,788 pick ups in Feb 2016)
+
+
+4. Wythe Ave and N 11th St. (4,507 pick ups in Feb 2016)
+
+
+5. Bedford Ave and N 7th St. (2,768 pick ups in Feb 2016)
 
 
 ```{r}
