@@ -18,3 +18,20 @@ library('leaflet.extras') # maps
 library('maps') # maps
 library('xgboost') # modelling
 library('caret') # modelling
+
+library(data.table)
+library(dplyr)
+library(ggplot2)
+library(flexdashboard)
+library(TraMineR)
+#install.packages("highcharter")
+#install.packages("zoo")
+library(highcharter)
+library(DT)
+library(flexdashboard)
+library(leaflet)
+library(rmarkdown)
+library(DT)
+
+library(treemap)
+library(viridisLite)

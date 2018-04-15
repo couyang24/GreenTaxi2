@@ -8,7 +8,7 @@ output:
     number_sections: true
     font-family: Open Sans, sans-serif
     font-import: https://fonts.googleapis.com/css?family=Open+Sans
-    # code_folding: hide
+    code_folding: hide
     highlight: tango
 editor_options: 
   chunk_output_type: console
@@ -63,11 +63,16 @@ data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table =
 ### First 20 rows
 
 ```{r }
-data %>% head(20) %>% datatable()
+data %>% head(20) %>% select(lpep_pickup_datetime,Pickup_longitude,Pickup_latitude,Trip_distance) %>% datatable()
 ```
 
 ### Structure
-The second question can be answered by looking at the structure of the dataset. The dataset has `r nrow(data)` observations(rows) and `r ncol(data)` variables(columns).
+
+
+The second question can be answered by looking at the structure of the dataset. The dataset has `r nrow(data)` observations(rows) 
+and `r ncol(data)` variables(columns).
+
+
 ```{r }
 data %>% str() # 1510722 obs. of  21 variables
 ```
@@ -79,8 +84,54 @@ data %>% summary()
 ```
 
 ## Data Cleaning: Correcting, Completing, Creating, and Converting {.tabset}
-### Correcting
-From the 
+### Correcting & Completing
+
+
+Since the trip payment is not in the scole of this analysis, I took out these variables for shorter runing time.
+
+
+```{r }
+data[,which(str_detect(names(data),"amount|fee|Extra|fee|Pay|tax|charge"))] <- NULL
+```
+
+
+Looking at the summary result, most value in pickup_longitude is around -73.95 (Presumbly where New York is) but the
+variable also have 0 and -115.28. Then, I put the pickup location on the map below, we see the locations in Guinea Basin
+and Las Vegas. The Guinea Basin location is due to having 0 longtitude and latitude. The Las Vegas locations seem interesting
+for which, might worth some time to dig into but it is beyond the scope of this analysis.
+
+
+```{r }
+set.seed(0)
+data %>% sample_n(size=10000) %>% 
+  leaflet() %>% 
+  addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+  addCircleMarkers(~Pickup_longitude, ~Pickup_latitude, radius = 1,
+                   color = "firebrick", fillOpacity = 0.001)
+```
+
+
+Therefore, I limited the boundary to New York and got rid out these locations. Then, I got the map below. It is very interesting
+to see that all the pick up location are outside of the core area of new york city. By doing a little research, I found out that
+the green taxi are only allowed to pick up passengers (street hails or calls) in outer boroughs (excluding John F. Kennedy
+International Airport and LaGuardia Airport unless arranged in advance) and in Manhattan above East 96th and West 110th Streets.
+That explains the pattern we see here.
+
+```{r }
+data <- data %>% filter(Pickup_longitude > -75, Pickup_longitude < -73, Pickup_latitude > 40.4, Pickup_latitude <41,
+                        Dropoff_longitude!=0,Dropoff_latitude!=0)
+
+set.seed(0)
+data %>% sample_n(size=10000) %>% 
+  leaflet() %>% 
+  addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+  addCircleMarkers(~Pickup_longitude, ~Pickup_latitude, radius = 1,
+                   color = "firebrick", fillOpacity = 0.001)
+
+```
+
+### Creating, and Converting
+
 ```{r }
 data <- data %>% mutate(lpep_pickup_datetime = ymd_hms(lpep_pickup_datetime),
                 pickup_hour=hour(lpep_pickup_datetime)+1,
@@ -91,7 +142,9 @@ data <- data %>% mutate(lpep_pickup_datetime = ymd_hms(lpep_pickup_datetime),
                 dropoff_weekday=as.factor(weekdays(lpep_pickup_datetime)))
 ```
 
-##visu
+# Step 4 Perform Exploratory Data Analysis (EDA)
+
+
 ```{r }
 round_num <- 3
 

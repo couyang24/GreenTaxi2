@@ -20,9 +20,9 @@ colSums(is.na(data))
 # Since the trip payment is not in the scole of this analysis, I took out these variables for shorter runing time.
 data[,which(str_detect(names(data),"amount|fee|Extra|fee|Pay|tax|charge"))] <- NULL
 
-# Looking at the summary result, most value in pickup_longitude is around -73.95 (Presumbly where New York is) but the 
-# variable also have 0 and -115.28. Then, I put the pickup location on the map below, we see the locations in Guinea Basin 
-# and Las Vegas. The Guinea Basin location is due to having 0 longtitude and latitude. The Las Vegas locations seem interesting 
+# Looking at the summary result, most value in pickup_longitude is around -73.95 (Presumbly where New York is) but the
+# variable also have 0 and -115.28. Then, I put the pickup location on the map below, we see the locations in Guinea Basin
+# and Las Vegas. The Guinea Basin location is due to having 0 longtitude and latitude. The Las Vegas locations seem interesting
 # for which, might worth some time to dig into but it is beyond the scope of this analysis.
 
 set.seed(0)
@@ -34,7 +34,10 @@ data %>% sample_n(size=10000) %>%
 
 
 # Therefore, I limited the boundary to New York and got rid out these locations. Then, I got the map below. It is very interesting
-# to see that all the pick up location are outside of the core area of new york city. 
+# to see that all the pick up location are outside of the core area of new york city. By doing a little research, I found out that
+# the green taxi are only allowed to pick up passengers (street hails or calls) in outer boroughs (excluding John F. Kennedy
+# International Airport and LaGuardia Airport unless arranged in advance) and in Manhattan above East 96th and West 110th Streets.
+# That explains the pattern we see here.
 
 data <- data %>% filter(Pickup_longitude > -75, Pickup_longitude < -73, Pickup_latitude > 40.4, Pickup_latitude <41,
                         Dropoff_longitude!=0,Dropoff_latitude!=0)
@@ -77,7 +80,6 @@ data %>%
   scale_y_sqrt()
 
 
-data$Store_and_fwd_flag %>% table()
 
 data %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=mean(Trip_distance)) %>% 
   ggplot(aes(pickup_hour, avg_trip_distance)) + geom_col() +
