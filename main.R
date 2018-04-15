@@ -18,7 +18,7 @@ colSums(is.na(data))
 
 # Correcting & Completing
 # Since the trip payment is not in the scole of this analysis, I took out these variables for shorter runing time.
-data[,which(str_detect(names(data),"amount|fee|Extra|fee|Pay|tax|charge"))] <- NULL
+data[,which(str_detect(names(data),"amount|fee|Extra|fee|type|tax|charge"))] <- NULL
 
 # Looking at the summary result, most value in pickup_longitude is around -73.95 (Presumbly where New York is) but the
 # variable also have 0 and -115.28. Then, I put the pickup location on the map below, we see the locations in Guinea Basin
@@ -81,7 +81,7 @@ data %>%
 
 
 
-data %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=mean(Trip_distance)) %>% 
+data %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=median(Trip_distance)) %>% 
   ggplot(aes(pickup_hour, avg_trip_distance)) + geom_col() +
   geom_label(aes(label=round(avg_trip_distance,1)), size=3.5, alpha=.7) +
   # coord_flip() +
@@ -91,7 +91,7 @@ data %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=mean(Trip_distanc
   labs(title='Gale Interview Challenge',subtitle='by Owen Ouyang',caption="source: Green Taxi Data",
        y="Average Trip Distance", x="Time of Day (Pickup)")
 
-data %>% filter(pickup_weekend=='Weekend') %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=mean(Trip_distance)) %>% 
+data %>% filter(pickup_weekend=='Weekend') %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=median(Trip_distance)) %>% 
   ggplot(aes(pickup_hour, avg_trip_distance)) + geom_col() +
   geom_label(aes(label=round(avg_trip_distance,1)), size=3.5, alpha=.7) +
   # coord_flip() +
@@ -101,7 +101,7 @@ data %>% filter(pickup_weekend=='Weekend') %>% group_by(pickup_hour) %>% summari
   labs(title='Gale Interview Challenge',subtitle='by Owen Ouyang',caption="source: Green Taxi Data",
        y="Average Trip Distance", x="Time of Day (Pickup)")
 
-data %>% filter(pickup_weekend=='Weekday') %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=mean(Trip_distance)) %>% 
+data %>% filter(pickup_weekend=='Weekday') %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=median(Trip_distance)) %>% 
   ggplot(aes(pickup_hour, avg_trip_distance)) + geom_col() +
   geom_label(aes(label=round(avg_trip_distance,1)), size=3.5, alpha=.7) +
   # coord_flip() +

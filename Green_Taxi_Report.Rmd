@@ -60,7 +60,7 @@ data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table =
 ```
 
 ## First Glimpse {.tabset}
-### First 20 rows
+### First 20 rows with selected columns
 
 ```{r }
 data %>% head(20) %>% select(lpep_pickup_datetime,Pickup_longitude,Pickup_latitude,Trip_distance) %>% datatable()
@@ -111,11 +111,13 @@ data %>% sample_n(size=10000) %>%
 ```
 
 
+
 Therefore, I limited the boundary to New York and got rid out these locations. Then, I got the map below. It is very interesting
 to see that all the pick up location are outside of the core area of new york city. By doing a little research, I found out that
 the green taxi are only allowed to pick up passengers (street hails or calls) in outer boroughs (excluding John F. Kennedy
 International Airport and LaGuardia Airport unless arranged in advance) and in Manhattan above East 96th and West 110th Streets.
 That explains the pattern we see here.
+
 
 ```{r }
 data <- data %>% filter(Pickup_longitude > -75, Pickup_longitude < -73, Pickup_latitude > 40.4, Pickup_latitude <41,
@@ -132,6 +134,19 @@ data %>% sample_n(size=10000) %>%
 
 ### Creating, and Converting
 
+
+I converted pick_datetime to time data and created variables such as pickup_hour, pickup_weekday, pickup_weekend, etc. 
+
+
+pickup_hour has value from 1 to 24, denoting 24 hours a day.
+
+
+pickup_weekday has value from Monday to Friday and is categorized as factor.
+
+
+pickup_weekend has value Weekday and Weekend.
+
+
 ```{r }
 data <- data %>% mutate(lpep_pickup_datetime = ymd_hms(lpep_pickup_datetime),
                 pickup_hour=hour(lpep_pickup_datetime)+1,
@@ -143,6 +158,28 @@ data <- data %>% mutate(lpep_pickup_datetime = ymd_hms(lpep_pickup_datetime),
 ```
 
 # Step 4 Perform Exploratory Data Analysis (EDA)
+
+
+First of all, let's have a overview on the distance data.
+
+
+``` {r}
+data %>%
+  ggplot(aes(Trip_distance)) +
+  geom_histogram(fill = "firebrick", bins = 150)
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ```{r }
