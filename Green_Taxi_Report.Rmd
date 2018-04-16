@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Step 1: Define the Problem
-**Requirment:**
+**Requirement:**
 
 1. Download the data, load it into your favorite statistical programing software or database.
 Report the number of rows and columns that you've loaded.
@@ -31,7 +31,7 @@ Report the number of rows and columns that you've loaded.
 4. I want to know where I can most easily get a cab. Recommend a pick up spot where i can
 find a cab given my lat long.
 
-This time, I would use **R** as the programing software for the analysis. The analysis would be based on a standard data science framework and the questions above; however, I would extend the scope of the analysis to identify any unique insight as well as provide detailed explaination of my code.
+This time, I would use **R** as the programing software for the analysis. The analysis would be based on a standard data science framework and the questions above; however, I would extend the scope of the analysis to identify any unique insight as well as provide detailed explanation of my code.
 
 The Process of Coding is available via [my github account](https://github.com/couyang24?tab=repositories).
 
@@ -90,7 +90,7 @@ data %>% summary()
 ### Correcting & Completing
 
 
-Since the trip payment is not in the scole of this analysis, I took out these variables for shorter runing time.
+Since the trip payment is not in the scale of this analysis, I took out these variables for shorter running time.
 
 
 ```{r }
@@ -98,10 +98,7 @@ data[,which(str_detect(names(data),"amount|fee|Extra|fee|Pay|tax|ID|charge"))] <
 ```
 
 
-Looking at the summary result, most value in pickup_longitude is around -73.95 (Presumbly where New York is) but the
-variable also have 0 and -115.28. Then, I put the pickup location on the map below, we see the locations in Guinea Basin
-and Las Vegas. The Guinea Basin location is due to having 0 longtitude and latitude. The Las Vegas locations seem interesting
-for which, might worth some time to dig into but it is beyond the scope of this analysis.
+Looking at the summary result, most value in pickup_longitude is around -73.95 (Presumably where New York is) but the variable also have 0 and -115.28. Then, I put the pickup location on the map below, we see the locations in Guinea Basin and Las Vegas. The Guinea Basin location is due to having 0 longitude and latitude. The Las Vegas locations seem interesting for which, might worth some time to dig into but it is beyond the scope of this analysis.
 
 
 ```{r }
@@ -115,11 +112,7 @@ data %>% sample_n(size=10000) %>%
 
 
 
-Therefore, I limited the boundary to New York and got rid out these locations. Then, I got the map below. It is very interesting
-to see that all the pick up location are outside of the core area of new york city. By doing a little research, I found out that
-the green taxi are only allowed to pick up passengers (street hails or calls) in outer boroughs (excluding John F. Kennedy
-International Airport and LaGuardia Airport unless arranged in advance) and in Manhattan above East 96th and West 110th Streets.
-That explains the pattern we see here.
+Therefore, I limited the boundary to New York and got rid out these locations. Then, I got the map below. It is very interesting to see that all the pick up location are outside of the core area of New York City. By doing a little research, I found out that the green taxi are only allowed to pick up passengers (street hails or calls) in outer boroughs (excluding John F. Kennedy International Airport and LaGuardia Airport unless arranged in advance) and in Manhattan above East 96th and West 110th Streets. That explains the pattern we see here.
 
 
 ```{r }
@@ -166,7 +159,7 @@ data <- data %>% mutate(lpep_pickup_datetime = ymd_hms(lpep_pickup_datetime),
 
 ### Raw
 
-First of all, let's have a overview on the distance data. As the graph below, the data is skewed by the distance outliers. 
+First of all, let's have an overview on the distance data. As the graph below, the data is skewed by the distance outliers. 
 
 
 ```{r results='hide', message=FALSE, warning=FALSE}
@@ -199,10 +192,10 @@ data %>%
 ## Visualize Trip Distance by Time of Day
 
 
-### Median Trip Distrance by Time of Day for both Weekday and Weekend
+### Median Trip Distance by Time of Day for both Weekday and Weekend
 
 
-From an inital look at the trip distance by time of day graph, The median trip distance is longer at 6 AM and 7 AM than any other time during the day. The difference between the two hours and the rest of the day is quite significant.
+From an initial look at the trip distance by time of day graph, the median trip distance is longer at 6 AM and 7 AM than any other time during the day. The difference between the two hours and the rest of the day is quite significant.
 
 
 ```{r}
@@ -218,10 +211,10 @@ data %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=median(Trip_dista
 ```
 
 
-### Median Trip Distrance by Time of Day for Weekday
+### Median Trip Distance by Time of Day for Weekday
 
 
-Same as the observation from the full dataset, 6 AM and 7 AM are still the two hour that people take taxi for the longest median trip distance. However, in this case, the median trip distance is slightly longer at 6 AM. At that day of the weekday, my assumption is most of the taxi usage is caused by the commute to go to work. Since people usually start work at 8 AM, one of the potential explaination is that people who live further from their work place tend to leave a bit earlier than the people who live close by. Moreover, it might also caused by that more people take taxi to work at 6 AM compared to 7 AM. Therefore, the median trip distance is slightly longer at 6 AM than 7 AM.
+Same as the observation from the full dataset, 6 AM and 7 AM are still the two hour that people take taxi for the longest median trip distance. However, in this case, the median trip distance is slightly longer at 6 AM. At that day of the weekday, my assumption is most of the taxi usage is caused by the commute to go to work. Since people usually start work at 8 AM, one of the potential explanation is that people who live further from their work place tend to leave a bit earlier than the people who live close by. Moreover, it might also cause by that more people take taxi to work at 6 AM compared to 7 AM. Therefore, the median trip distance is slightly longer at 6 AM than 7 AM.
 
 
 ```{r}
@@ -238,7 +231,7 @@ data %>% filter(pickup_weekend=='Weekday') %>% group_by(pickup_hour) %>% summari
 ```
 
 
-### Median Trip Distrance by Time of Day for Weekend
+### Median Trip Distance by Time of Day for Weekend
 
 
 For the weekend, 7 AM and 8 AM turned out to be the two hours that have the longest trip distance. Additionally, the difference between the two hours and the rest of the day is not as significant as for the weekdays. My speculation is that people tend to sleep in, since they don't have to go to work in the early morning. Therefore, the longest median trip distance is postponed one hour as well as the difference is not as significant as the weekdays.
@@ -257,7 +250,7 @@ data %>% filter(pickup_weekend=='Weekend') %>% group_by(pickup_hour) %>% summari
 ```
 
 
-### Combined Weekday and Weekend Median Trip Distrance
+### Combined Weekday and Weekend Median Trip Distance
 
 
 ```{r}
@@ -280,7 +273,7 @@ data %>%
 ### Basic Set up
 
 
-Rather than directing calculating the top 5 pick up locations, I preprocessed the data a little bit. The logic is that if I directly use the longtitude and latitude data, the same pick up spot with slightly different coordinates would be treated as different pick up locations and that would definitely deviate from the actual result. Therefore, I round the longtitude and latitude to the 3 decimals from which the coordinates with slightly different number would be treated as one spot. I also used a green cab icon to denote the pick up spots. The graph is interactive and can be zoom in and out. If you place the mouse on the green cab icon, it would show how many pick ups at the location based on the dataset.
+Rather than directing calculating the top 5 pick up locations, I preprocessed the data a little bit. The logic is that if I directly use the longitude and latitude data, the same pick up spot with slightly different coordinates would be treated as different pick up locations and that would definitely deviate from the actual result. Therefore, I round the longitude and latitude to the 3 decimals from which the coordinates with slightly different number would be treated as one spot. I also used a green cab icon to denote the pick up spots. The graph is interactive and can be zoom in and out. If you place the mouse on the green cab icon, it would show how many pick ups at the location based on the dataset.
 
 
 ```{r}
@@ -364,14 +357,14 @@ Weekend_Top5 %>%
 # Step 5 Modelling
 
 
-To recommend a pick up spot, I leverage the power of unsupervise learning by using a simple Kmeans model to group the pick up spots into 50 groups. Each of the pick up locations
+To recommend a pick up spot, I leverage the power of unsupervised learning by using a simple Kmeans model to group the pick up spots into 50 groups. Each of the pick up locations
 
 
 ## Recommend to Find Pick Up Spot
 ### Preprocess the data
 
 
-According to the dictionary, there are two types of trip - street-hail and dispatch. For this question, we should only focus on the street-hail and exclude the dispatchs. 
+According to the dictionary, there are two types of trip - street-hail and dispatch. For this question, we should only focus on the street-hail and exclude the dispatches. 
 
 
 ```{r}
