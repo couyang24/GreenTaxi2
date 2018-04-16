@@ -55,7 +55,7 @@ pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.tab
 
 ```{r }
 # Initially use read.csv then write the file so that going forward I can use fread
-data <- read.csv("green_tripdata_2016-02.csv", stringsAsFactors = F)
+data <- read.csv("https://s3.amazonaws.com/nyc-tlc/trip+data/green_tripdata_2016-02.csv", stringsAsFactors = F)
 # write_csv(data,"green_tripdata_2016-02v2.csv")
 # data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""),
               # showProgress = F)
@@ -64,7 +64,7 @@ data <- read.csv("green_tripdata_2016-02.csv", stringsAsFactors = F)
 ## First Glimpse {.tabset}
 
 
-The second question can be answered by looking at the structure of the dataset. The dataset has `r nrow(data)` observations(rows) 
+The first question can be answered by looking at the structure of the dataset. The dataset has `r nrow(data)` observations(rows) 
 and `r ncol(data)` variables(columns).
 
 

@@ -35,7 +35,7 @@ Let's continue our journey. First of all, I have to load the packages and the da
 # pacman package install required packages if not available 
 if (!require("pacman")) install.packages("pacman") 
 pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes, rebus, clue)
-data <- read.csv("green_tripdata_2016-02.csv", stringsAsFactors = F)
+data <- read.csv("https://s3.amazonaws.com/nyc-tlc/trip+data/green_tripdata_2016-02.csv", stringsAsFactors = F)
 # data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""))
 data[,which(str_detect(names(data),"amount|fee|Extra|fee|Pay|tax|ID|charge"))] <- NULL
 data <- data %>% filter(Pickup_longitude > -75, Pickup_longitude < -73, Pickup_latitude > 40.4, Pickup_latitude <41,
