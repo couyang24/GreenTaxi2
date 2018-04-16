@@ -395,7 +395,7 @@ pal <- colorNumeric(
 I sampled 10,000 observations and put them on the map.
 
 
-So far, I answered the first three questions. To answer the last question, I would leverage the power of shiny app and make an interactive graph with the input option for longtitude and latitude. Then, I would use the kmeans model to predict which cluster the input location would be in and focus on the pickup points within that cluster. Final, I would pick top 20 pick up points to recommend.
+So far, I answered the first three questions. To answer the last question, I would leverage the power of shiny app and make an interactive graph with the input option for longitude and latitude. Then, I would use the kmeans model to predict which cluster the input location would be in and focus on the pickup points within that cluster. Final, I would pick top 20 pick up points to recommend.
 
 Please found these result from Green Taxi Study Part 2.
 
