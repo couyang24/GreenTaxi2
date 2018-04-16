@@ -55,10 +55,10 @@ pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.tab
 
 ```{r }
 # Initially use read.csv then write the file so that going forward I can use fread
-# data <- read.csv("green_tripdata_2016-02.csv", stringsAsFactors = F)
+data <- read.csv("green_tripdata_2016-02.csv", stringsAsFactors = F)
 # write_csv(data,"green_tripdata_2016-02v2.csv")
-data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""),
-              showProgress = F)
+# data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""),
+              # showProgress = F)
 ```
 
 ## First Glimpse {.tabset}
@@ -375,7 +375,6 @@ According to the dictionary, there are two types of trip - street-hail and dispa
 
 
 ```{r}
-data %>% select(Trip_type) %>% table()
 data_coord <- data %>% filter(Trip_type==1) %>% select(Pickup_longitude, Pickup_latitude)
 data1 <- data %>% filter(Trip_type==1)
 ```
