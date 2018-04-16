@@ -45,6 +45,8 @@ The scope of data is limited to Green taxi data for February 2016. There is also
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 # pacman package install required packages if not available 
+# data <- read.csv("green_tripdata_2016-02.csv", stringsAsFactors = F)
+# write_csv(data,"green_tripdata_2016-02v2.csv")
 if (!require("pacman")) install.packages("pacman") 
 pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes, rebus, clue)
 ```
@@ -60,6 +62,12 @@ data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table =
 ```
 
 ## First Glimpse {.tabset}
+
+
+The second question can be answered by looking at the structure of the dataset. The dataset has `r nrow(data)` observations(rows) 
+and `r ncol(data)` variables(columns).
+
+
 ### First 20 rows with selected columns
 
 ```{r }
@@ -67,11 +75,6 @@ data %>% head(20) %>% select(lpep_pickup_datetime,Pickup_longitude,Pickup_latitu
 ```
 
 ### Structure
-
-
-The second question can be answered by looking at the structure of the dataset. The dataset has `r nrow(data)` observations(rows) 
-and `r ncol(data)` variables(columns).
-
 
 ```{r }
 data %>% str() # 1510722 obs. of  21 variables
@@ -372,23 +375,30 @@ According to the dictionary, there are two types of trip - street-hail and dispa
 
 
 ```{r}
-data$Trip_type %>% table()
+data %>% select(Trip_type) %>% table()
 data_coord <- data %>% filter(Trip_type==1) %>% select(Pickup_longitude, Pickup_latitude)
 data1 <- data %>% filter(Trip_type==1)
 ```
 
-
+I used kmeans model to classify the coordinates into 50 groups.
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 set.seed(0)
-data_kmeans <- data_coord %>% kmeans(10,nstart=20)
-data1 <- data %>% filter(Trip_type==1)
+data_kmeans <- data_coord %>% kmeans(50,nstart=20)
+
 data1$cluster <- data_kmeans$cluster
 
 pal <- colorNumeric(
   palette = "Blues",
   domain = data$cluster)
 ```
+
+I sampled 10,000 observations and put them on the map.
+
+
+So far, I answered the first three questions. To answer the last question, I would leverage the power of shiny app and make an interactive graph with the input option for longtitude and latitude. Then, I would use the kmeans model to predict which cluster the input location would be in and focus on the pickup points within that cluster. Final, I would pick top 20 pick up points to recommend.
+
+Please found these result from Green Taxi Study Part 2.
 
 
 ```{r}
@@ -401,19 +411,6 @@ data1 %>% sample_n(size=10000) %>%
 ```
 
 
-```{r}
-greentaxi2 <- makeIcon(
-  iconUrl = "https://i.imgur.com/6rw618Q.png",
-  iconWidth = 18, iconHeight = 15,
-  iconAnchorX = 9, iconAnchorY = 19
-)
 
 
-data_kmeans$centers %>% as_data_frame() %>%
-  leaflet() %>% 
-  addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
-  addCircleMarkers(~Pickup_longitude, ~Pickup_latitude, radius = 1,
-                   color = "firebrick", fillOpacity = 0.001)%>%
-  addMarkers(~Pickup_longitude, ~Pickup_latitude, icon = greentaxi2)
 
-```

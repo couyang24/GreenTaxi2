@@ -19,12 +19,42 @@ runtime: shiny
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+
+# Preprocess
+
+
+## Load Dataset and Packages
+
+
+Let's continue our journey. First of all, I have to load the packages and the dataset, and preprocess the data.
+
+
+
 ```{r results='hide', message=FALSE, warning=FALSE}
 # pacman package install required packages if not available 
 if (!require("pacman")) install.packages("pacman") 
 pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes, rebus, clue)
-data <- fread("processed_data.csv")
+data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""))
+data[,which(str_detect(names(data),"amount|fee|Extra|fee|Pay|tax|ID|charge"))] <- NULL
+data <- data %>% filter(Pickup_longitude > -75, Pickup_longitude < -73, Pickup_latitude > 40.4, Pickup_latitude <41,
+                        Dropoff_longitude!=0,Dropoff_latitude!=0)
+data <- data %>% mutate(lpep_pickup_datetime = ymd_hms(lpep_pickup_datetime),
+                pickup_hour=hour(lpep_pickup_datetime)+1,
+                pickup_weekday=as.factor(weekdays(lpep_pickup_datetime)),
+                pickup_weekend=if_else(pickup_weekday=='Saturday'|pickup_weekday=='Sunday','Weekend','Weekday'),
+                Lpep_dropoff_datetime = ymd_hms( Lpep_dropoff_datetime),
+                dropoff_hour=hour(lpep_pickup_datetime)+1,
+                dropoff_weekday=as.factor(weekdays(lpep_pickup_datetime)))
+
+
 ```
+
+
+## Load model, Icon, and Color
+
+
+Then, I loaded the data_kmeans model, new color palette, and Icon.
 
 
 ```{r results='hide', message=FALSE, warning=FALSE}
@@ -41,7 +71,20 @@ data1$cluster <- data_kmeans$cluster
 pal <- colorNumeric(
   palette = "Blues",
   domain = data$cluster)
+
+greentaxi2 <- makeIcon(
+  iconUrl = "https://i.imgur.com/6rw618Q.png",
+  iconWidth = 18, iconHeight = 15,
+  iconAnchorX = 9, iconAnchorY = 19
+)
+
 ```
+
+
+## Reproduce the Graph
+
+
+I reproduce the last graph from study1.
 
 
 ```{r}
@@ -54,22 +97,15 @@ data1 %>% sample_n(size=10000) %>%
 ```
 
 
-```{r}
-greentaxi2 <- makeIcon(
-  iconUrl = "https://i.imgur.com/6rw618Q.png",
-  iconWidth = 18, iconHeight = 15,
-  iconAnchorX = 9, iconAnchorY = 19
-)
 
-```
+
+# Shiny App to Answer Question 4
 
 
 
-## Inputs and Outputs
 
-You can embed Shiny inputs and outputs in your document. Outputs are automatically updated whenever inputs change.  This demonstrates how a standard R plot can be made interactive by wrapping it in the Shiny `renderPlot` function. The `selectInput` and `sliderInput` functions create the input widgets used to drive the plot.
 
-```{r eruptions, echo=FALSE}
+```{r echo=FALSE}
 inputPanel(
   sliderInput("lng", label = "Longtitude:",
               min = -74.630, max = -73.179, value = -74, step = 0.001),
