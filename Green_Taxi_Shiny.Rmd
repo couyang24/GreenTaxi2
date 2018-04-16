@@ -1,0 +1,103 @@
+---
+title: "Green Taxi Case Study Part2"
+author: "Chengran Ouyang"
+date: "`r format(Sys.Date())`"
+output:
+  html_document:
+    theme: lumen
+    number_sections: true
+    font-family: Open Sans, sans-serif
+    font-import: https://fonts.googleapis.com/css?family=Open+Sans
+    code_folding: hide
+    highlight: tango
+editor_options: 
+  chunk_output_type: console
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r results='hide', message=FALSE, warning=FALSE}
+# pacman package install required packages if not available 
+if (!require("pacman")) install.packages("pacman") 
+pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes, rebus, clue)
+data <- fread("processed_data.csv")
+```
+
+
+```{r results='hide', message=FALSE, warning=FALSE}
+data_coord <- data %>% filter(Trip_type==1) %>% select(Pickup_longitude, Pickup_latitude)
+data1 <- data %>% filter(Trip_type==1)
+set.seed(0)
+# data_kmeans <- data_coord %>% kmeans(10,nstart=20)
+# save(data_kmeans, file = "data_kmeans.rda")
+load("data_kmeans.rda")
+
+data1 <- data %>% filter(Trip_type==1)
+data1$cluster <- data_kmeans$cluster
+
+pal <- colorNumeric(
+  palette = "Blues",
+  domain = data$cluster)
+```
+
+
+```{r}
+set.seed(0)
+data1 %>% sample_n(size=10000) %>% 
+  leaflet() %>% 
+  addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+  addCircleMarkers(~Pickup_longitude, ~Pickup_latitude, radius = 1,
+                   color = ~pal(cluster), fillOpacity = 0.001)
+```
+
+
+```{r}
+greentaxi2 <- makeIcon(
+  iconUrl = "https://i.imgur.com/6rw618Q.png",
+  iconWidth = 18, iconHeight = 15,
+  iconAnchorX = 9, iconAnchorY = 19
+)
+
+```
+
+
+
+## Inputs and Outputs
+
+You can embed Shiny inputs and outputs in your document. Outputs are automatically updated whenever inputs change.  This demonstrates how a standard R plot can be made interactive by wrapping it in the Shiny `renderPlot` function. The `selectInput` and `sliderInput` functions create the input widgets used to drive the plot.
+
+```{r eruptions, echo=FALSE}
+inputPanel(
+  sliderInput("lng", label = "Longtitude:",
+              min = -74.630, max = -73.179, value = -74, step = 0.001),
+  
+  sliderInput("lat", label = "Latitude:",
+              min = 40.5, max = 41, value = 40.75, step = 0.001)
+)
+
+renderLeaflet({
+  x <- data_frame(Pickup_longitude= input$lng, Pickup_latitude= input$lat)
+  (cluster_num <- cl_predict(data_kmeans,x))
+
+  result <- data1 %>% filter(cluster==cluster_num)
+
+
+  round_num <- 3
+  result %>% group_by(lng=round(Pickup_longitude,round_num),lat=round(Pickup_latitude,round_num)) %>% 
+  count() %>% arrange(desc(n)) %>% head(20) %>% 
+  leaflet() %>% 
+  addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+  addCircleMarkers(~lng, ~lat, radius = 1,
+                   color = "firebrick", fillOpacity = 0.001)%>%
+  addMarkers(~lng, ~lat, icon = greentaxi2, label = ~as.character(paste("Number of Pick ups:",result$n)))
+
+})
+```
+
+
+
+
+

@@ -1,5 +1,5 @@
 ---
-title: "Green Taxi Case Study"
+title: "Green Taxi Case Study Part1"
 author: "Chengran Ouyang"
 date: "`r format(Sys.Date())`"
 output:
@@ -43,10 +43,10 @@ The scope of data is limited to Green taxi data for February 2016. There is also
 ## Dependencies {.tabset}
 ### Required libraries
 
-```{r }
+```{r results='hide', message=FALSE, warning=FALSE}
 # pacman package install required packages if not available 
 if (!require("pacman")) install.packages("pacman") 
-pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes, rebus)
+pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes, rebus, clue)
 ```
 
 ### Required Dataset
@@ -166,7 +166,7 @@ data <- data %>% mutate(lpep_pickup_datetime = ymd_hms(lpep_pickup_datetime),
 First of all, let's have a overview on the distance data. As the graph below, the data is skewed by the distance outliers. 
 
 
-```{r}
+```{r results='hide', message=FALSE, warning=FALSE}
 data %>%
   ggplot(aes(Trip_distance)) +
   geom_histogram(fill = "firebrick", bins = 150) +
@@ -182,7 +182,7 @@ data %>%
 After processing the data, I got an almost normal distribution with some more few distance trips.
 
 
-```{r}
+```{r results='hide', message=FALSE, warning=FALSE}
 data %>%
   ggplot(aes(Trip_distance)) +
   geom_histogram(fill = "firebrick", bins = 150) +
@@ -358,7 +358,7 @@ Weekend_Top5 %>%
 ```
 
 
-# Modelling
+# Step 5 Modelling
 
 
 To recommend a pick up spot, I leverage the power of unsupervise learning by using a simple Kmeans model to group the pick up spots into 50 groups. Each of the pick up locations
@@ -379,10 +379,9 @@ data1 <- data %>% filter(Trip_type==1)
 
 
 
-```{r}
+```{r results='hide', message=FALSE, warning=FALSE}
 set.seed(0)
-data_kmeans <- data_coord %>% kmeans(50,nstart=20)
-data_kmeans$centers
+data_kmeans <- data_coord %>% kmeans(10,nstart=20)
 data1 <- data %>% filter(Trip_type==1)
 data1$cluster <- data_kmeans$cluster
 

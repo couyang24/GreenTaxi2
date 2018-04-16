@@ -145,16 +145,15 @@ data_coord %>% summary()
 
 set.seed(0)
 data_kmeans <- data_coord %>% kmeans(50,nstart=20)
-summary(data_kmeans)
-data_kmeans$cluster %>% head()
 
-plot(data_coord,col=data_kmeans$cluster,main="k-means with 50 clusters",
-     xlab="",ylab="")
+save(data_kmeans, file = "data_kmeans.rda")
 
+load("data_kmeans.rda")
 
-data_kmeans$centers
 data1 <- data %>% filter(Trip_type==1)
 data1$cluster <- data_kmeans$cluster
+
+data1 %>% select(Pickup_longitude,Pickup_latitude) %>% summary()
 
 pal <- colorNumeric(
   palette = "Blues",
@@ -182,3 +181,28 @@ data_kmeans$centers %>% as_data_frame() %>%
   addCircleMarkers(~Pickup_longitude, ~Pickup_latitude, radius = 1,
                    color = "firebrick", fillOpacity = 0.001)%>%
   addMarkers(~Pickup_longitude, ~Pickup_latitude, icon = greentaxi2)
+
+
+x <- data_frame(Pickup_longitude= -73.90395, Pickup_latitude= 40.86587)
+
+data_kmeans$centers
+
+library(clue)
+
+(cluster_num <- cl_predict(data_kmeans,x))
+
+result <- data1 %>% filter(cluster==cluster_num)
+
+result %>% str()
+
+
+round_num <- 3
+result %>% group_by(lng=round(Pickup_longitude,round_num),lat=round(Pickup_latitude,round_num)) %>% 
+  count() %>% arrange(desc(n)) %>% head(20) %>% 
+  leaflet() %>% 
+  addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+  addCircleMarkers(~lng, ~lat, radius = 1,
+                   color = "firebrick", fillOpacity = 0.001)%>%
+  addMarkers(~lng, ~lat, icon = greentaxi2, label = ~as.character(paste("Number of Pick ups:",result$n)))
+
+write_csv(data,"processed_data.csv")
