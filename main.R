@@ -18,7 +18,7 @@ colSums(is.na(data))
 
 # Correcting & Completing
 # Since the trip payment is not in the scole of this analysis, I took out these variables for shorter runing time.
-data[,which(str_detect(names(data),"amount|fee|Extra|fee|type|tax|charge"))] <- NULL
+data[,which(str_detect(names(data),"amount|fee|Extra|fee|Pay|tax|ID|charge"))] <- NULL
 
 # Looking at the summary result, most value in pickup_longitude is around -73.95 (Presumbly where New York is) but the
 # variable also have 0 and -115.28. Then, I put the pickup location on the map below, we see the locations in Guinea Basin
@@ -124,21 +124,61 @@ data %>% filter(pickup_weekend=='Weekday') %>% group_by(pickup_hour) %>% summari
   labs(title='Green Taxi Case Study',subtitle='by Owen Ouyang',caption="source: Green Taxi Data",
        y="Average Trip Distance", x="Time of Day (Pickup)")
 
-round_num <- 3
 
-Weekend_Top5 <- data %>% filter(pickup_weekend=='Weekend') %>% 
-  group_by(lng=round(Pickup_longitude,round_num),lat=round(Pickup_latitude,round_num)) %>% 
-  count() %>% arrange(desc(n)) %>% head(5)
-
-Weekday_Top5 <- data %>% filter(pickup_weekend=='Weekday') %>% 
-  group_by(lng=round(Pickup_longitude,round_num),lat=round(Pickup_latitude,round_num)) %>% 
-  count() %>% arrange(desc(n)) %>% head(5)
-
-rm(round_num)
-
-
+data %>%
+  group_by(pickup_hour, pickup_weekend) %>%
+  summarise(avg_trip_distance=median(Trip_distance)) %>%
+  ggplot(aes(pickup_hour, avg_trip_distance, color = pickup_weekend)) +
+  geom_smooth(method = "loess", span = 1/2, se=F) +
+  geom_point(size = 4) +
+  labs(x = "Time of Day (Pickup)", y = "Average Trip Distance") +
+  scale_x_continuous(breaks=seq(1,24,1)) +
+  theme_economist() +
+  scale_color_discrete("Weekday vs. Weekend")
 
 
+data$Trip_type %>% table()
 
-data$Ehail_fee <- NULL
+data_coord <- data %>% filter(Trip_type==1) %>% select(Pickup_longitude, Pickup_latitude)
 
+data_coord %>% summary()
+
+set.seed(0)
+data_kmeans <- data_coord %>% kmeans(50,nstart=20)
+summary(data_kmeans)
+data_kmeans$cluster %>% head()
+
+plot(data_coord,col=data_kmeans$cluster,main="k-means with 50 clusters",
+     xlab="",ylab="")
+
+
+data_kmeans$centers
+data1 <- data %>% filter(Trip_type==1)
+data1$cluster <- data_kmeans$cluster
+
+pal <- colorNumeric(
+  palette = "Blues",
+  domain = data$cluster)
+
+
+set.seed(0)
+data1 %>% sample_n(size=10000) %>% 
+  leaflet() %>% 
+  addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+  addCircleMarkers(~Pickup_longitude, ~Pickup_latitude, radius = 1,
+                   color = ~pal(cluster), fillOpacity = 0.001)
+
+
+greentaxi2 <- makeIcon(
+  iconUrl = "https://i.imgur.com/6rw618Q.png",
+  iconWidth = 18, iconHeight = 15,
+  iconAnchorX = 9, iconAnchorY = 19
+)
+
+
+data_kmeans$centers %>% as_data_frame() %>%
+  leaflet() %>% 
+  addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+  addCircleMarkers(~Pickup_longitude, ~Pickup_latitude, radius = 1,
+                   color = "firebrick", fillOpacity = 0.001)%>%
+  addMarkers(~Pickup_longitude, ~Pickup_latitude, icon = greentaxi2)
