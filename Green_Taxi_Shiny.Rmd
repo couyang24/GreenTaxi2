@@ -35,7 +35,8 @@ Let's continue our journey. First of all, I have to load the packages and the da
 # pacman package install required packages if not available 
 if (!require("pacman")) install.packages("pacman") 
 pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes, rebus, clue)
-data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""))
+data <- read.csv("green_tripdata_2016-02v2.csv", stringsAsFactors = F)
+# data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""))
 data[,which(str_detect(names(data),"amount|fee|Extra|fee|Pay|tax|ID|charge"))] <- NULL
 data <- data %>% filter(Pickup_longitude > -75, Pickup_longitude < -73, Pickup_latitude > 40.4, Pickup_latitude <41,
                         Dropoff_longitude!=0,Dropoff_latitude!=0)
@@ -97,13 +98,12 @@ data1 %>% sample_n(size=10000) %>%
 ```
 
 
+# Shiny App
 
 
-# Shiny App to Answer Question 4
+## The final mission to Answer Question 4
 
-
-
-
+I set up the input options for longtitude and latitude with sliders. Once that data is input, the program would make a prediction for which cluster it belongs to based on the input and kmeans model. Then, it would give 20 recommended pick up spots within the cluster.  
 
 ```{r echo=FALSE}
 inputPanel(
