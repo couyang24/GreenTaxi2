@@ -1,9 +1,9 @@
 # Setup packages and load data
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes, rebus)
-# data <- read.csv("green_tripdata_2016-02.csv", stringsAsFactors = F)
+pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes, rebus, clue)
+data <- read.csv("green_tripdata_2016-02.csv", stringsAsFactors = F)
 # write_csv(data,"green_tripdata_2016-02v2.csv")
-data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""))
+# data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""))
 
 # initial view
 data %>% head()
@@ -187,7 +187,6 @@ x <- data_frame(Pickup_longitude= -73.90395, Pickup_latitude= 40.86587)
 
 data_kmeans$centers
 
-library(clue)
 
 (cluster_num <- cl_predict(data_kmeans,x))
 
@@ -197,12 +196,21 @@ result %>% str()
 
 
 round_num <- 3
-result %>% group_by(lng=round(Pickup_longitude,round_num),lat=round(Pickup_latitude,round_num)) %>% 
-  count() %>% arrange(desc(n)) %>% head(20) %>% 
+top20 <- result %>% group_by(lng=round(Pickup_longitude,round_num),lat=round(Pickup_latitude,round_num)) %>% 
+  count() %>% arrange(desc(n)) %>% head(20) 
+top20 %>% 
   leaflet() %>% 
   addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
   addCircleMarkers(~lng, ~lat, radius = 1,
                    color = "firebrick", fillOpacity = 0.001)%>%
   addMarkers(~lng, ~lat, icon = greentaxi2, label = ~as.character(paste("Number of Pick ups:",result$n)))
+
+x
+dist <- list()
+for (i in 1:20) {
+  dist[i] <- abs(top20[i,1]-x[1])+abs(top20[i,2]-x[2])
+}
+
+dist %>% which.min()
 
 write_csv(data,"processed_data.csv")
