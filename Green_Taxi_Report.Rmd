@@ -48,17 +48,16 @@ The scope of data is limited to Green taxi data for February 2016. There is also
 # data <- read.csv("green_tripdata_2016-02.csv", stringsAsFactors = F)
 # write_csv(data,"green_tripdata_2016-02v2.csv")
 if (!require("pacman")) install.packages("pacman") 
-pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes, rebus, clue)
+pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes, rebus, clue, skimr, plotly)
 ```
 
 ### Required Dataset
 
 ```{r  message=FALSE, warning=FALSE}
 # Initially use read.csv then write the file so that going forward I can use fread
-data <- read.csv("https://s3.amazonaws.com/nyc-tlc/trip+data/green_tripdata_2016-02.csv", stringsAsFactors = F)
-# write_csv(data,"green_tripdata_2016-02v2.csv")
-# data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""),
-              # showProgress = F)
+# data <- read.csv("https://s3.amazonaws.com/nyc-tlc/trip+data/green_tripdata_2016-02.csv", stringsAsFactors = F)
+# write.csv(data,"green_tripdata_2016-02v2.csv")
+data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""), showProgress = F)
 ```
 
 ## First Glimpse{.tabset .tabset-fade .tabset-pills}
@@ -71,13 +70,21 @@ and `r ncol(data)` variables(columns).
 ### First 20 rows with selected columns
 
 ```{r  message=FALSE, warning=FALSE}
-data %>% head(20) %>% select(lpep_pickup_datetime,Pickup_longitude,Pickup_latitude,Trip_distance) %>% datatable()
+data %>% head(100) %>% select(lpep_pickup_datetime,Pickup_longitude,Pickup_latitude,Trip_distance) %>% datatable(filter = 'top', options = list(
+  pageLength = 15, autoWidth = TRUE
+))
 ```
 
 ### Structure
 
 ```{r  message=FALSE, warning=FALSE}
-data %>% str() # 1510722 obs. of  21 variables
+data %>% glimpse() # 1510722 obs. of  21 variables
+```
+
+### Skim
+
+```{r  message=FALSE, warning=FALSE}
+data %>% skim() %>% kable()
 ```
 
 ### Summary
@@ -146,12 +153,12 @@ First of all, let's have an overview on the distance data. As the graph below, t
 
 
 ```{r results='hide', message=FALSE, warning=FALSE}
-data %>%
+ggplotly(data %>%
   ggplot(aes(Trip_distance)) +
   geom_histogram(fill = "firebrick", bins = 150) +
   theme_economist() +
   labs(title='Green Taxi Case Study',subtitle='Initial Historgram of Distance',caption="source: NYC Green Taxi Data",
-       x="Travel Distance")
+       x="Travel Distance"))
 ```
 
 
@@ -162,13 +169,13 @@ After processing the data, I got an almost normal distribution with some more fe
 
 
 ```{r results='hide', message=FALSE, warning=FALSE}
-data %>%
+ggplotly(data %>%
   ggplot(aes(Trip_distance)) +
   geom_histogram(fill = "firebrick", bins = 150) +
   scale_x_log10() +
   theme_economist() +
   labs(title='Green Taxi Case Study',subtitle='Processed Historgram of Distance',caption="source: NYC Green Taxi Data",
-       x="Travel Distance (log)")
+       x="Travel Distance (log)"))
 ```
 
 
@@ -182,15 +189,15 @@ From an initial look at the trip distance by time of day graph, the median trip 
 
 
 ```{r  message=FALSE, warning=FALSE}
-data %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=median(Trip_distance)) %>% 
-  ggplot(aes(pickup_hour, avg_trip_distance)) + geom_col() +
+ggplotly(data %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=median(Trip_distance)) %>% 
+  ggplot(aes(pickup_hour, avg_trip_distance, fill = avg_trip_distance)) + geom_col() +
   geom_label(aes(label=round(avg_trip_distance,1)), size=3.5, alpha=.7) +
   # coord_flip() +
   scale_x_continuous(breaks=seq(1,24,1)) +
   theme_economist() +
   theme(legend.position = 'none') +
   labs(title='Median Trip Distance',subtitle='All Data Included (Weekday and Weekdend)',caption="source: Green Taxi Data",
-       y="Average Trip Distance", x="Time of Day (Pickup)")
+       y="Average Trip Distance", x="Time of Day (Pickup)"))
 ```
 
 
@@ -201,15 +208,15 @@ Same as the observation from the full dataset, 6 AM and 7 AM are still the two h
 
 
 ```{r  message=FALSE, warning=FALSE}
-data %>% filter(pickup_weekend=='Weekday') %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=median(Trip_distance)) %>% 
-  ggplot(aes(pickup_hour, avg_trip_distance)) + geom_col() +
+ggplotly(data %>% filter(pickup_weekend=='Weekday') %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=median(Trip_distance)) %>% 
+  ggplot(aes(pickup_hour, avg_trip_distance, fill = avg_trip_distance)) + geom_col() +
   geom_label(aes(label=round(avg_trip_distance,1)), size=3.5, alpha=.7) +
   # coord_flip() +
   scale_x_continuous(breaks=seq(1,24,1)) +
   theme_economist() +
   theme(legend.position = 'none') +
   labs(title='Median Trip Distance',subtitle='Weekday',caption="source: Green Taxi Data",
-       y="Average Trip Distance", x="Time of Day (Pickup)")
+       y="Average Trip Distance", x="Time of Day (Pickup)"))
 
 ```
 
@@ -221,15 +228,15 @@ For the weekend, 7 AM and 8 AM turned out to be the two hours that have the long
 
 
 ```{r  message=FALSE, warning=FALSE}
-data %>% filter(pickup_weekend=='Weekend') %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=median(Trip_distance)) %>% 
-  ggplot(aes(pickup_hour, avg_trip_distance)) + geom_col() +
+ggplotly(data %>% filter(pickup_weekend=='Weekend') %>% group_by(pickup_hour) %>% summarise(avg_trip_distance=median(Trip_distance)) %>% 
+  ggplot(aes(pickup_hour, avg_trip_distance, fill = avg_trip_distance)) + geom_col() +
   geom_label(aes(label=round(avg_trip_distance,1)), size=3.5, alpha=.7) +
   # coord_flip() +
   scale_x_continuous(breaks=seq(1,24,1)) +
   theme_economist() +
   theme(legend.position = 'none') +
   labs(title='Median Trip Distance',subtitle='Weekend',caption="source: Green Taxi Data",
-       y="Average Trip Distance", x="Time of Day (Pickup)")
+       y="Average Trip Distance", x="Time of Day (Pickup)"))
 ```
 
 
@@ -237,7 +244,7 @@ data %>% filter(pickup_weekend=='Weekend') %>% group_by(pickup_hour) %>% summari
 
 
 ```{r  message=FALSE, warning=FALSE}
-data %>%
+ggplotly(data %>%
   group_by(pickup_hour, pickup_weekend) %>%
   summarise(avg_trip_distance=median(Trip_distance)) %>%
   ggplot(aes(pickup_hour, avg_trip_distance, color = pickup_weekend)) +
@@ -246,7 +253,7 @@ data %>%
   labs(x = "Time of Day (Pickup)", y = "Average Trip Distance") +
   scale_x_continuous(breaks=seq(1,24,1)) +
   theme_economist() +
-  scale_color_discrete("Weekday vs. Weekend")
+  scale_color_discrete("Weekday vs. Weekend"))
 
 
 ```
