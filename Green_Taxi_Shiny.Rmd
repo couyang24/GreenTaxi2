@@ -35,7 +35,7 @@ Let's continue our journey. First of all, I have to load the packages and the da
 # pacman package install required packages if not available 
 if (!require("pacman")) install.packages("pacman") 
 pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes, rebus, clue)
-data <- read.csv("https://s3.amazonaws.com/nyc-tlc/trip+data/green_tripdata_2016-02.csv", stringsAsFactors = F)
+data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""))
 # data <- read.csv("green_tripdata_2016-02.csv", stringsAsFactors = F)
 # data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""))
 data[,which(str_detect(names(data),"amount|fee|Extra|fee|Pay|tax|ID|charge"))] <- NULL
@@ -63,7 +63,7 @@ Then, I loaded the data_kmeans model, new color palette, and Icon.
 data_coord <- data %>% filter(Trip_type==1) %>% select(Pickup_longitude, Pickup_latitude)
 data1 <- data %>% filter(Trip_type==1)
 set.seed(0)
-# data_kmeans <- data_coord %>% kmeans(10,nstart=20)
+# data_kmeans <- data_coord %>% kmeans(50,nstart=20)
 # save(data_kmeans, file = "data_kmeans.rda")
 load("data_kmeans.rda")
 

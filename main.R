@@ -2,7 +2,7 @@
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes, rebus, clue)
 data <- read.csv("green_tripdata_2016-02.csv", stringsAsFactors = F)
-# write_csv(data,"green_tripdata_2016-02v2.csv")
+write_csv(data,"green_tripdata_2016-02v2.csv")
 # data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""))
 
 # initial view
