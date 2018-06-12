@@ -63,9 +63,9 @@ Then, I loaded the data_kmeans model, new color palette, and Icon.
 data_coord <- data %>% filter(Trip_type==1) %>% select(Pickup_longitude, Pickup_latitude)
 data1 <- data %>% filter(Trip_type==1)
 set.seed(0)
-# data_kmeans <- data_coord %>% kmeans(50,nstart=20)
+data_kmeans <- data_coord %>% kmeans(50,nstart=20)
 # save(data_kmeans, file = "data_kmeans.rda")
-load("data_kmeans.rda")
+# load("data_kmeans.rda")
 
 data1 <- data %>% filter(Trip_type==1)
 data1$cluster <- data_kmeans$cluster

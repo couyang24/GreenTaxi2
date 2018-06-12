@@ -1,5 +1,5 @@
 ---
-title: "Green Taxi Case Study Part1"
+title: "Taxi Interac Map + Unsupervised Learning"
 author: "Chengran Ouyang"
 date: "`r format(Sys.Date())`"
 output:
@@ -33,8 +33,6 @@ find a cab given my lat long.
 
 This time, I would use **R** as the programing software for the analysis. The analysis would be based on a standard data science framework and the questions above; however, I would extend the scope of the analysis to identify any unique insight as well as provide detailed explanation of my code.
 
-The Process of Coding is available via [my github account](https://github.com/couyang24?tab=repositories).
-
 # Step 2: Gather the Data
 The scope of data is limited to Green taxi data for February 2016. There is also data dictionary available from the website, which explain the variable. The Data is available via [NYC Trip Data](http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml).
 
@@ -44,21 +42,15 @@ The scope of data is limited to Green taxi data for February 2016. There is also
 ### Required libraries
 
 ```{r results='hide', message=FALSE, warning=FALSE}
-# pacman package install required packages if not available 
-# data <- read.csv("green_tripdata_2016-02.csv", stringsAsFactors = F)
-# write_csv(data,"green_tripdata_2016-02v2.csv")
 if (!require("pacman")) install.packages("pacman") 
 pacman::p_load(tidyverse, DT, lubridate, leaflet, leaflet.extras, maps, data.table, ggthemes, rebus, clue, skimr, plotly)
-
 ```
 
 ### Required Dataset
 
-```{r  message=FALSE, warning=FALSE}
+```{r results='hide', message=FALSE, warning=FALSE}
 # Initially use read.csv then write the file so that going forward I can use fread
-# data <- read.csv("https://s3.amazonaws.com/nyc-tlc/trip+data/green_tripdata_2016-02.csv", stringsAsFactors = F)
-# write.csv(data,"green_tripdata_2016-02v2.csv")
-data <- fread("green_tripdata_2016-02v2.csv", stringsAsFactors = F, data.table = FALSE, na.strings=c("NA","NaN","?", ""), showProgress = F)
+data <- read.csv("input/green_tripdata_2016-02v2.csv", stringsAsFactors = F)
 ```
 
 ## First Glimpse{.tabset .tabset-fade .tabset-pills}
@@ -106,6 +98,9 @@ data[,which(str_detect(names(data),"amount|fee|Extra|fee|Pay|tax|ID|charge"))] <
 ```
 
 
+# Interactive Map
+
+
 Looking at the summary result, I got the map below. It is very interesting to see that all the pick up location are outside of the core area of New York City. By doing a little research, I found out that the green taxi are only allowed to pick up passengers (street hails or calls) in outer boroughs (excluding John F. Kennedy International Airport and LaGuardia Airport unless arranged in advance) and in Manhattan above East 96th and West 110th Streets. That explains the pattern we see here.
 
 
@@ -115,10 +110,40 @@ data %>%
   sample_n(size=10000) %>% 
   
   leaflet() %>% 
-  addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+  addProviderTiles(providers$Esri.NatGeoWorldMap, group = "color map") %>%
+  addProviderTiles(providers$CartoDB.Positron, group = "Light map") %>%
+  addProviderTiles(providers$Stamen.Toner, group = "white map") %>% 
   addCircleMarkers(~Pickup_longitude, ~Pickup_latitude, radius = 1,
-                   color = "firebrick", fillOpacity = 0.001)
+                   color = "firebrick", fillOpacity = 0.001) %>%
+  addLayersControl(
+    baseGroups = c("Color map", "Light map", "white map"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
 ```
+
+
+# Interactive Map with Clustering
+
+
+```{r  message=FALSE, warning=FALSE}
+set.seed(0)
+data %>% 
+  sample_n(size=10000) %>% 
+  
+  leaflet() %>% 
+  addProviderTiles(providers$Esri.NatGeoWorldMap, group = "color map") %>%
+  addProviderTiles(providers$CartoDB.Positron, group = "Light map") %>%
+  addProviderTiles(providers$Stamen.Toner, group = "white map") %>% 
+  addCircleMarkers(~Pickup_longitude, ~Pickup_latitude, radius = 1,
+                   color = "firebrick", fillOpacity = 0.001,
+                   clusterOptions = markerClusterOptions()) %>%
+  addLayersControl(
+    baseGroups = c("Color map", "Light map", "white map"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+```
+
+
 
 
 ### Creating, and Converting
@@ -156,12 +181,12 @@ First of all, let's have an overview on the distance data. As the graph below, t
 
 
 ```{r results='hide', message=FALSE, warning=FALSE}
-ggplotly(data %>%
+data %>%
   ggplot(aes(Trip_distance)) +
   geom_histogram(fill = "firebrick", bins = 150) +
   theme_economist() +
   labs(title='Green Taxi Case Study',subtitle='Initial Historgram of Distance',caption="source: NYC Green Taxi Data",
-       x="Travel Distance"))
+       x="Travel Distance")
 ```
 
 
@@ -172,13 +197,13 @@ After processing the data, I got an almost normal distribution with some more fe
 
 
 ```{r results='hide', message=FALSE, warning=FALSE}
-ggplotly(data %>%
+data %>%
   ggplot(aes(Trip_distance)) +
   geom_histogram(fill = "firebrick", bins = 150) +
   scale_x_log10() +
   theme_economist() +
   labs(title='Green Taxi Case Study',subtitle='Processed Historgram of Distance',caption="source: NYC Green Taxi Data",
-       x="Travel Distance (log)"))
+       x="Travel Distance (log)")
 ```
 
 
@@ -399,17 +424,130 @@ I sampled 10,000 observations and put them on the map.
 
 So far, I answered the first three questions. To answer the last question, I would leverage the power of shiny app and make an interactive graph with the input option for longitude and latitude. Then, I would use the kmeans model to predict which cluster the input location would be in and focus on the pickup points within that cluster. Final, I would pick top 20 pick up points to recommend and the coordinate of the closest pick up spot among the Top 20.
 
-Please found these result from Green Taxi Study Part 2.
+Please found these result from the Shiny app below.
 
 
 ```{r  message=FALSE, warning=FALSE}
 set.seed(0)
 data1 %>% sample_n(size=10000) %>% 
   leaflet() %>% 
-  addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+  addProviderTiles(providers$Esri.NatGeoWorldMap, group = "color map") %>%
+  addProviderTiles(providers$CartoDB.Positron, group = "Light map") %>%
+  addProviderTiles(providers$Stamen.Toner, group = "white map") %>% 
+  addScaleBar() %>%
   addCircleMarkers(~Pickup_longitude, ~Pickup_latitude, radius = 1,
-                   color = ~pal(cluster), fillOpacity = 0.001)
+                   color = ~pal(cluster), fillOpacity = 0.001) %>%
+  addLayersControl(
+    baseGroups = c("Color map", "Light map", "white map"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
 ```
+
+
+# Shiny App
+
+
+## The final mission to Answer Question 4
+
+I set up the input options for longitude and latitude with sliders. Once that data is input, the program would make a prediction, for which cluster it belongs to, based on the input and kmeans model. Then, it would give 20 recommended pick up spots within the cluster as well as the closest pick up spot among the Top 20.
+
+**Please be awared that the graph below is just the screenshot of the actual interactive graph, since Shiny app is not available on Kaggle at the moment.**
+
+```{r echo=FALSE}
+# 
+# set.seed(0)
+# greentaxi2 <- makeIcon(
+#   iconUrl = "https://i.imgur.com/6rw618Q.png",
+#   iconWidth = 18, iconHeight = 15,
+#   iconAnchorX = 9, iconAnchorY = 19
+# )
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# inputPanel(
+#   sliderInput("lng", label = "Longtitude:",
+#               min = -74.630, max = -73.179, value = -74, step = 0.001),
+#   
+#   sliderInput("lat", label = "Latitude:",
+#               min = 40.5, max = 41, value = 40.75, step = 0.001)
+# )
+# 
+# renderLeaflet({
+#   x <- data_frame(Pickup_longitude= input$lng, Pickup_latitude= input$lat)
+#   (cluster_num <- cl_predict(data_kmeans,x))
+#   
+#   result <- data1 %>% filter(cluster==cluster_num)
+#   
+#   
+#   round_num <- 3
+#   top20 <- result %>% group_by(lng=round(Pickup_longitude,round_num),lat=round(Pickup_latitude,round_num)) %>% 
+#     count() %>% arrange(desc(n)) %>% head(20)
+#   top20 %>% 
+#     leaflet() %>% 
+#     addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+#     addCircleMarkers(~lng, ~lat, radius = 1,
+#                      color = "firebrick", fillOpacity = 0.001)%>%
+#     addMarkers(~lng, ~lat, icon = greentaxi2, label = ~as.character(paste("Number of Pick ups:",top20$n)))
+#   
+# })
+# 
+# renderPrint({
+#   x <- data_frame(Pickup_longitude= input$lng, Pickup_latitude= input$lat)
+#   (cluster_num <- cl_predict(data_kmeans,x))
+#   
+#   result <- data1 %>% filter(cluster==cluster_num)
+#   
+#   
+#   round_num <- 3
+#   top20 <- result %>% group_by(lng=round(Pickup_longitude,round_num),lat=round(Pickup_latitude,round_num)) %>% 
+#     count() %>% arrange(desc(n)) %>% head(20)
+#   dist <- list()
+#   for (i in 1:20) {
+#     dist[i] <- abs(top20[i,1]-x[1])+abs(top20[i,2]-x[2])
+#   }
+#   
+#   num <- dist %>% which.min()
+#   
+#   paste("The closest pick up spot is at the coordinate - Longitude:",top20[num,1]," Latitude: ",top20[num,2])
+# })
+# 
+# renderLeaflet({
+#   x <- data_frame(Pickup_longitude= input$lng, Pickup_latitude= input$lat)
+#   (cluster_num <- cl_predict(data_kmeans,x))
+#   
+#   result <- data1 %>% filter(cluster==cluster_num)
+#   
+#   
+#   round_num <- 3
+#   top20 <- result %>% group_by(lng=round(Pickup_longitude,round_num),lat=round(Pickup_latitude,round_num)) %>% 
+#     count() %>% arrange(desc(n)) %>% head(20)
+#   dist <- list()
+#   for (i in 1:20) {
+#     dist[i] <- abs(top20[i,1]-x[1])+abs(top20[i,2]-x[2])
+#   }
+#   
+#   num <- dist %>% which.min()
+#   
+#   top20[num,] %>% 
+#     leaflet() %>% 
+#     addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+#     addCircleMarkers(~lng, ~lat, radius = 1,
+#                      color = "firebrick", fillOpacity = 0.001)%>%
+#     addMarkers(~lng, ~lat, icon = greentaxi2, label = ~as.character(paste("Number of Pick ups:",top20$n)))
+#   
+#   
+# })
+```
+
+<img src="https://i.imgur.com/q1cnnJb.png">
+
 
 
 
